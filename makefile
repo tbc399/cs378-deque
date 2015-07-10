@@ -44,6 +44,9 @@ config:
 
 test: TestDeque.out
 
+simple-test: TestDeque
+	./TestDeque
+
 deque-tests:
 	git clone https://github.com/cs378-summer-2015/deque-tests.git
 

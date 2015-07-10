@@ -200,6 +200,7 @@ class my_deque {
                 // ----
 
                 // <your data>
+                my_deque& _d;
 
             private:
                 // -----
@@ -218,7 +219,7 @@ class my_deque {
                 /**
                  * <your documentation>
                  */
-                iterator (/* <your arguments> */) {
+                iterator (my_deque& d, size_type n = 0) {
                     // <your code>
                     assert(valid());}
 
