@@ -634,10 +634,9 @@ class my_deque {
          * <your documentation>
          */
         reference back () {
-            // <your code>
-            // dummy is just to be able to compile the skeleton, remove it
-            static value_type dummy;
-            return dummy;}
+            assert(!empty());
+            return *(end() - 1);
+        }
 
         /**
          * <your documentation>
@@ -730,10 +729,8 @@ class my_deque {
          * <your documentation>
          */
         reference front () {
-            // <your code>
-            // dummy is just to be able to compile the skeleton, remove it
-            static value_type dummy;
-            return dummy;
+            assert(!empty());
+            return *begin();
         }
 
         /**
@@ -764,7 +761,8 @@ class my_deque {
          * <your documentation>
          */
         void pop_back () {
-            // <your code>
+            assert(!empty());
+            resize(size() - 1);
             assert(valid());
         }
 
@@ -783,8 +781,8 @@ class my_deque {
         /**
          * <your documentation>
          */
-        void push_back (const_reference) {
-            // <your code>
+        void push_back (const_reference v) {
+            resize(size() + 1, v);
             assert(valid());
         }
 
