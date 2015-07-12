@@ -7,6 +7,9 @@
 #ifndef Deque_h
 #define Deque_h
 
+/* size of an individual block in number of elements */
+#define BLOCK_SIZE 50
+
 // --------
 // includes
 // --------
@@ -22,6 +25,7 @@
 // using
 // -----
 
+using namespace std;
 using std::rel_ops::operator!=;
 using std::rel_ops::operator<=;
 using std::rel_ops::operator>;
@@ -102,12 +106,15 @@ class my_deque {
         // -----------
 
         /**
-         * <your documentation>
+         * Check to see if two my_deque objects are the same
+         * @param lhs a my_deque
+         * @param rhs a my_deque
+         * @return true if lhs is less than rhs
          */
         friend bool operator == (const my_deque& lhs, const my_deque& rhs) {
-            // <your code>
-            // you must use std::equal()
-            return true;
+            if (lhs.size() != rhs.size())
+                return false;
+            return equal(lhs.begin(), lhs.end(), rhs.begin());
         }
 
         // ----------
@@ -115,12 +122,14 @@ class my_deque {
         // ----------
 
         /**
-         * <your documentation>
+         * Checks to see if a my_deque is lexicographically less than another
+         * @param lhs a my_deque
+         * @param rhs a my_deque
+         * @return true if lhs is less than rhs
          */
         friend bool operator < (const my_deque& lhs, const my_deque& rhs) {
-            // <your code>
-            // you must use std::lexicographical_compare()
-            return true;
+            return lexicographical_compare(lhs.begin(), lhs.end(),
+                                           rhs.begin(), lhs.end());
         }
 
     private:
@@ -130,7 +139,18 @@ class my_deque {
 
         allocator_type _a;
 
-        // <your data>
+        /* pointer to the beginning of the data blocks */
+        pointer* _d;
+        
+        /* pointer to the end */
+        pointer* _e;
+        
+        /* index offset of the first element from _d */
+        size_type _o;
+        
+        /* number of elements (help keep track of the end) */
+        size_type _s;
+        
 
     private:
         // -----
@@ -537,18 +557,44 @@ class my_deque {
         // ------------
 
         /**
-         * <your documentation>
+         * Default constructor
+         * @param a the allocator to use for memory management
          */
-        explicit my_deque (const allocator_type& a = allocator_type()) {
-            // <your code>
+        explicit my_deque (const allocator_type& a = allocator_type()) : _a(a) {
+            _d = _e = 0;
+            _o = _s = 0;
             assert(valid());
         }
 
         /**
-         * <your documentation>
+         * Construct a my_deque with an initial size
+         * @param s the size of the new my_deque
+         * @param v the fill value to be used
+         * @param a the allocator to use for memory management
          */
-        explicit my_deque (size_type s, const_reference v = value_type(), const allocator_type& a = allocator_type()) {
+        explicit my_deque (size_type s, const_reference v = value_type(),
+                           const allocator_type& a = allocator_type()) : _a(a) {
             // <your code>
+            if (!s) {
+                _d = _e = 0;
+                _o = _s = 0;
+                assert(valid());
+                return;
+            }
+            
+            if (s % BLOCK_SIZE == 0) {
+                _d = new pointer[s / BLOCK_SIZE];
+                _e = _d + s / BLOCK_SIZE;
+            } else {
+                _d = new pointer[(s / BLOCK_SIZE) + 1];
+                _e = _d + (s / BLOCK_SIZE + 1);
+            }
+            
+            _o = 0;
+            _s = s;
+            
+            resize(_s, v);
+            
             assert(valid());
         }
 
