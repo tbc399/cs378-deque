@@ -8,7 +8,7 @@
 #define Deque_h
 
 /* size of an individual block in number of elements */
-#define BLOCK_SIZE 50
+#define BLOCK_SIZE 5
 
 // --------
 // includes
@@ -26,6 +26,7 @@
 // -----
 
 using namespace std;
+
 using std::rel_ops::operator!=;
 using std::rel_ops::operator<=;
 using std::rel_ops::operator>;
@@ -98,7 +99,7 @@ class my_deque {
         typedef typename allocator_type::reference       reference;
         typedef typename allocator_type::const_reference const_reference;
 
-        typename A::template rebind<pointer>::other      B;
+        typedef typename A::template rebind<pointer>::other B;
 
     public:
         // -----------
@@ -136,13 +137,17 @@ class my_deque {
         // ----
         // data
         // ----
-
+        
+        /* allocator for value_type */
         allocator_type _a;
+        
+        /* allocator for pointer */
+        B _b;
 
         /* pointer to the beginning of the data blocks */
         pointer* _d;
         
-        /* pointer to the end */
+        /* pointer to the end of the data blocks*/
         pointer* _e;
         
         /* index offset of the first element from _d */
@@ -574,7 +579,7 @@ class my_deque {
          */
         explicit my_deque (size_type s, const_reference v = value_type(),
                            const allocator_type& a = allocator_type()) : _a(a) {
-            // <your code>
+            
             if (!s) {
                 _d = _e = 0;
                 _o = _s = 0;
@@ -582,13 +587,9 @@ class my_deque {
                 return;
             }
             
-            if (s % BLOCK_SIZE == 0) {
-                _d = new pointer[s / BLOCK_SIZE];
-                _e = _d + s / BLOCK_SIZE;
-            } else {
-                _d = new pointer[(s / BLOCK_SIZE) + 1];
-                _e = _d + (s / BLOCK_SIZE + 1);
-            }
+            /* even if s % BLOCK_SIZE == 0 give 'em an extra block just cuz */
+            _d = _b.allocate((s / BLOCK_SIZE) + 1);
+            _e = _d + (s / BLOCK_SIZE + 1);
             
             _o = 0;
             _s = s;
@@ -596,13 +597,31 @@ class my_deque {
             resize(_s, v);
             
             assert(valid());
+            
         }
 
         /**
-         * <your documentation>
+         * Construct a copy of a my_deque
+         * @param that the my_deque to copy
          */
         my_deque (const my_deque& that) {
             // <your code>
+            if (!that.size()) {
+                _d = _e = 0;
+                _o = _s = 0;
+                assert(valid());
+                return;
+            }
+            
+            /* even if s % BLOCK_SIZE == 0 give 'em an extra block just cuz */
+            _d = _b.allocate((s / BLOCK_SIZE) + 1);
+            _e = _d + (s / BLOCK_SIZE + 1);
+            
+            _o = 0;
+            _s = that.size();
+            
+            // TODO: copy over values
+            
             assert(valid());
         }
 
@@ -611,10 +630,17 @@ class my_deque {
         // ----------
 
         /**
-         * <your documentation>
+         * Destruct this my_deque
          */
         ~my_deque () {
-            // <your code>
+            if (!empty())
+                clear();
+            pointer* d = _d;
+            while (d != _e) {
+                _a.deallocate(*d, BLOCK_SIZE);
+                ++d
+            }
+            _b.deallocate(_d, _e - _d);
             assert(valid());
         }
 
@@ -627,6 +653,19 @@ class my_deque {
          */
         my_deque& operator = (const my_deque& rhs) {
             // <your code>
+            if (this == &rhs)
+                return *this;
+            else if (rhs.size() == size())
+                copy(rhs.begin(), rhs.end(), begin());
+            else if (rhs.size() < size()) {
+                copy(rhs.begin(), rhs.end(), begin());
+                resize(rhs.size());
+            } else if (rhs.size() <= capacity()) {
+                copy(rhs.begin(), rhs.begin() + size(), begin());
+                _e = uninitialized_copy(_a, rhs.begin() + size(), rhs.end(), end());
+            } else {
+                
+            }
             assert(valid());
             return *this;
         }
@@ -861,6 +900,19 @@ class my_deque {
         size_type size () const {
             // <your code>
             return 0;
+        }
+        
+        // --------
+        // capacity
+        // --------
+        
+        /**
+         * Get the capacity of the my_deque container
+         * @return the total number of elements that the my_deque
+         *  can currently hold without allocating more memory
+         */
+        size_type capacity () const {
+            return (_e - _d) * BLOCK_SIZE;
         }
 
         // ----
