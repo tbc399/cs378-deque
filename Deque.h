@@ -215,7 +215,7 @@ class my_deque {
          * accomodated after the reallocation
          */
         void rrealloc (size_type n) {
-            cout <<"RREALLOC N: " << n << "\n";
+            //cout <<"RREALLOC N: " << n << "\n";
             size_type new_blocks;
             if (n % BLOCK_SIZE)
                 new_blocks = n / BLOCK_SIZE + 1;
@@ -223,15 +223,15 @@ class my_deque {
                 new_blocks = n / BLOCK_SIZE;
                 
             size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
-            cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
-            cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
-            cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
+            //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
+            //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
+            //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
+            //cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
             pointer* p = copy(_d, _e, new_d);
-            cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
+            //cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
             
             while (p != new_e) {
                 *p = _a.allocate(BLOCK_SIZE);
@@ -242,7 +242,7 @@ class my_deque {
             
             _d = new_d;
             _e = new_e;
-            cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
+            //cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
             assert(valid());
             
         }
@@ -254,7 +254,7 @@ class my_deque {
          * accomodated after the reallocation
          */
         void lrealloc (size_type n) {
-            cout <<"LREALLOC N: " << n << "\n";
+            //cout <<"LREALLOC N: " << n << "\n";
             size_type new_blocks;
             if (n % BLOCK_SIZE)
                 new_blocks = n / BLOCK_SIZE + 1;
@@ -262,31 +262,34 @@ class my_deque {
                 new_blocks = n / BLOCK_SIZE;
                 
             size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
-            cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
-            cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
-            cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
+            //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
+            //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
+            //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
+            //cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
             size_type num_blocks_added = (new_e - new_d) - (_e - _d);
-            
-            pointer* p = copy(_d, _e, new_d + num_blocks_added);
-            cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
-            while (p != new_e) {
-                *p = _a.allocate(BLOCK_SIZE);
-                ++p;
+            //cout << "ADDING " << num_blocks_added << " NEW BLOCKS\n";
+            copy(_d, _e, new_d + num_blocks_added);
+            //cout << "COPIED OLD CONTENT: " << (p == new_e) << "\n";
+            pointer* b = new_d;
+            pointer* e = new_d + num_blocks_added;
+            while (b != e) {
+                *b = _a.allocate(BLOCK_SIZE);
+                //cout << "ALLOCATING BLOCK\n";
+                ++b;
             }
             
             _b.deallocate(_d, _e - _d);
             
             _d = new_d;
             _e = new_e;
-            cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
-            cout << "OLD OFFSET: " << _o << "\n";
+            //cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
+            //cout << "OLD OFFSET: " << _o << "\n";
             _o += (num_blocks_added * BLOCK_SIZE);
-            cout << "NEW OFFSET: " << _o << "\n";
-            cout << "NEW CAPACITY: " << capacity() << "\n";
+            //cout << "NEW OFFSET: " << _o << "\n";
+            //cout << "NEW CAPACITY: " << capacity() << "\n";
             assert(valid());
         }
 
@@ -722,7 +725,6 @@ class my_deque {
                 //size_type old_s = _s;
                 //_s = rhs.size();
                 uninitialized_copy(_a, rhs.begin() + _s, rhs.end(), end());
-                cout << "uni copy good\n";
             }
             _s = rhs.size();
             assert(valid());
@@ -887,7 +889,7 @@ class my_deque {
          */
         iterator insert (iterator it, const_reference v) {
             push_back(*--end());
-            cout << "PUSH_BACK GOOD\n";
+            //cout << "PUSH_BACK GOOD\n";
             iterator b(it);
             iterator e(--end());
             while (e != b) {
@@ -941,21 +943,24 @@ class my_deque {
                 lrealloc(1);
             --_o;
             ++_s;
-            cout << "LREALLOC GOOD\n";
-            pointer* p = _d;
+            //cout << "LREALLOC GOOD\n";
+            /*pointer* p = _d;
             while (p != _e) {
                 pointer q = *p;
                 pointer r = q + BLOCK_SIZE;
+                cout << "p = " << p << "\n";
                 while (q != r) {
                     cout << q << "\n";
                     ++q;
                 }
                 ++p;
             }
-            cout << "ELEMENT AT BEGIN(): " << &(*this)[0] << "\n";
-            //_a.construct(&(*--begin()), v);
-            _a.construct(&((*this)[0]), v);
-            assert(valid());}
+            (*this)[-5] = 2;
+            cout << "ELEMENT AT BEGIN(): " << &(*this)[-5] << "\n";*/
+            _a.construct(&(*begin()), v);
+            //_a.construct(&((*this)[0]), v);
+            assert(valid());
+     	}
 
         /**
          * Change the size of this my_deque

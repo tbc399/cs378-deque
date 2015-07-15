@@ -1384,8 +1384,7 @@ TYPED_TEST(Deque_Fixture, deque_pop_back_1) {
 TYPED_TEST(Deque_Fixture, deque_pop_back_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(100);
-    d.insert(d.end(), 1);
-    cout << "INSERT GOOD\n";    
+    d.insert(d.end(), 1);    
     ASSERT_EQ(101, d.size());
     d.pop_back();
     ASSERT_EQ(100, d.size());
