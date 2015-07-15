@@ -123,9 +123,176 @@ class my_deque {
 
     private:
         
+        /**
+         * Check to see if the my_deque is in a valid state
+         * @return true if my_deque is in valid state
+         */
         bool valid () const {
-            // <your code>
+            if (_s < 0)
+                return false;
+            if (_o < 0 || _o > capacity())
+                return false;
+            if (_o + _s > capacity())
+                return false;
+            if (_e < _d)
+                return false;
+            if ((!_d && _e) || (_d && !_e))
+                return false;
             return true;
+        }
+        
+        /**
+         * Get the total allocated capacity for this my_deque
+         * @return the total capacity
+         */
+        size_type capacity () {
+            return (_e - _d) * BLOCK_SIZE;
+        }
+        
+        /**
+         * Get the amount of allocated space to the "left"
+         * of my_deque, i.e. before the first constructed element
+         * @return the capacity before the first element
+         */
+        size_type left_free () {
+            return _o;
+        }
+        
+        /**
+         * Get the amount of allocated space to the "right"
+         * of my_deque, i.e. after the last constructed element
+         * @return the capacity after the last element
+         */
+        size_type right_free () {
+            return capacity() - (_o + _s);
+        }
+        
+        /**
+         * Allocate enough blocks of size BLOCK_SIZE in which to fit
+         * a specified number of elements
+         * @param n the number of elements required to store
+         * @param b a reference to a value_type** to mark the beginning of the
+         * blocks
+         * @param e a reference to a value_type** to mark the end of the blocks
+         */
+        void half_alloc (size_type n, pointer*& b, pointer*& e) {
+            
+            if (n % BLOCK_SIZE){
+                b = _b.allocate(n / BLOCK_SIZE + 1);
+                e = _b + (n / BLOCK_SIZE + 1);
+            } else {
+                b = _b.allocate(n / BLOCK_SIZE);
+                e = _b + (n / BLOCK_SIZE);
+            }
+
+        }
+        
+        /**
+         * Allocate enough space for blocks of size BLOCK_SIZE in which to fit
+         * a specified number of elements without actually allocating the
+         * blocks
+         * @param n the number of elements required to store
+         * @param b a reference to a value_type** to mark the beginning of the
+         * blocks
+         * @param e a reference to a value_type** to mark the end of the blocks
+         */
+        void full_alloc (size_type n, pointer*& b, pointer*& e) {
+            
+            half_alloc(n, b, e);
+            
+            pointer* p = b;
+            while (p != e) {
+                (*p) = _a.allocate(BLOCK_SIZE);
+                ++p;
+            }
+            
+        }
+        
+        /**
+         * Make more space for new data giving preference
+         * to the "right" side of the my_deque
+         * @param n the number of elements that will have to be
+         * accomodated after the reallocation
+         */
+        void rrealloc (size_type n) {
+            
+            size_type new_blocks = n / BLOCK_SIZE + 1;
+            size_type new_cap = ((_e - _d) + new_blocks) * 2;
+            
+            pointer* new_d;
+            pointer* new_e;
+            half_alloc(new_cap, new_d, new_e);
+            
+            pointer* p = copy(_d, _e, new_d);
+            
+            while (p != new_e) {
+                *p = _a.allocate(BLOCK_SIZE);
+                ++p;
+            }
+            
+            _b.deallocate(_d, _d + _e);
+            
+            _d = new_d;
+            _e = new_e;
+            
+            assert(valid());
+            /*
+            size_type space_needed = n + _s;
+            
+            size_type blocks_needed;
+            if (space_needed % BLOCK_SIZE)
+                blocks_needed = space_needed / BLOCK_SIZE + 1;
+            else
+                blocks_needed = space_needed / BLOCK_SIZE;
+                
+            size_type blocks_have = _e - _d;
+                
+            if (blocks_needed < blocks_have) { // just move blocks
+                size_type new_begin = (blocks_have - blocks_needed) / 2;
+                pointer* b = _d + new_begin;
+                while (b != _e) {
+                    
+                }
+            } else {
+                
+            }
+            
+            assert(valid());
+            */
+        }
+        
+        /**
+         * Make more space for new data giving preference
+         * to the "left" side of the my_deque
+         * @param n the number of elements that will have to be
+         * accomodated after the reallocation
+         */
+        void lrealloc (size_type n) {
+            
+            size_type new_blocks = n / BLOCK_SIZE + 1;
+            size_type new_cap = ((_e - _d) + new_blocks) * 2;
+            
+            pointer* new_d;
+            pointer* new_e;
+            half_alloc(new_cap, new_d, new_e);
+            
+            size_type num_blocks_added = (new_e - new_d) - (_e - _d);
+            
+            pointer* p = copy(_d, _e, new_d + num_blocks_added);
+            
+            while (p != new_e) {
+                *p = _a.allocate(BLOCK_SIZE);
+                ++p;
+            }
+            
+            _b.deallocate(_d, _d + _e);
+            
+            _d = new_d;
+            _e = new_e;
+            
+            _o += (num_blocks_added * BLOCK_SIZE);
+            
+            assert(valid());
         }
 
     public:
@@ -470,7 +637,8 @@ class my_deque {
          */
         explicit my_deque (const allocator_type& a = allocator_type()) : _a(a) {
             _d = _e = 0;
-            _o = _s = 0;
+            _o = BLOCK_SIZE / 2;
+            _s = 0;
             assert(valid());
         }
 
@@ -490,13 +658,10 @@ class my_deque {
                 return;
             }
             
-            /* even if s % BLOCK_SIZE == 0 give 'em an extra block just cuz */
-            _d = _b.allocate((s / BLOCK_SIZE) + 1);
-            _e = _d + (s / BLOCK_SIZE + 1);
-            
             _o = 0;
             _s = s;
             
+            full_alloc(s, _d, _e);
             resize(_s, v);
             
             assert(valid());
@@ -508,24 +673,22 @@ class my_deque {
          * @param that the my_deque to copy
          */
         my_deque (const my_deque& that) {
-            // <your code>
+            
+            _d = _e = _o = 0;
+            _s = that.size();
+            
             if (!that.size()) {
-                _d = _e = 0;
-                _o = _s = 0;
+                _o = BLOCK_SIZE / 2;
+                _s = 0;
                 assert(valid());
                 return;
             }
             
-            /* even if s % BLOCK_SIZE == 0 give 'em an extra block just cuz */
-            _d = _b.allocate((s / BLOCK_SIZE) + 1);
-            _e = _d + (s / BLOCK_SIZE) + 1;
-            
-            _o = 0;
-            _s = that.size();
-            
-            // TODO: copy over values
+            full_alloc(_s, _d, _e);
+            uninitialized_copy(_a, that.begin(), that.end(), begin());
             
             assert(valid());
+            
         }
 
         /**
@@ -549,41 +712,19 @@ class my_deque {
          * @return this my_deque
          */
         my_deque& operator = (const my_deque& rhs) {
-            // <your code>
             if (this == &rhs)
                 return *this;
-            else if (rhs.size() == size())
+            else if (rhs.size() == _s)
                 copy(rhs.begin(), rhs.end(), begin());
-            else if (rhs.size() < size()) {
+            else if (rhs.size() < _s) {
                 copy(rhs.begin(), rhs.end(), begin());
                 resize(rhs.size());
-                _s = rhs.size();
-            } else if (rhs.size() <= (_e - _d) * BLOCK_SIZE) {
-                // TODO: handle case where rhs.size() > _e - (_d + _o)
-                copy(rhs.begin(), rhs.begin() + size(), begin());
-                _e = uninitialized_copy(_a, rhs.begin() + size(), rhs.end(), end());
-                _s = rhs.size();
             } else {
-                
-                if (!empty())
-                    clear();
-                    
-                /* reserve more memory */
-                pointer* d = _d;
-                while (d != _e) {
-                    _a.deallocate(*d, BLOCK_SIZE);
-                    ++d
-                }
-                _b.deallocate(_d, _e - _d);
-                
-                _d = _b.allocate((rhs.size() / BLOCK_SIZE) + 1);
-                _e = d + (rhs.size() / BLOCK_SIZE) + 1;
-                _o = 0;
-                _s = rhs.size();
-                
-                uninitialized_copy(_a, rhs.begin(), rhs.end(), begin());
-                    
+                rrealloc(rhs.size() - _s);
+                copy(rhs.begin(), rhs.begin() + _s, begin());
+                uninitialized_copy(_a, rhs.begin() + _s, rhs.end(), end());
             }
+            _s = rhs.size();
             assert(valid());
             return *this;
         }
@@ -704,12 +845,33 @@ class my_deque {
         }
 
         /**
-         * <your documentation>
+         * Remove a single element from this my_deque
+         * @param it an iterator pointing to the element to be removed
+         * @return an itertaor pointing to the element that came immediately
+         * after the element that was removed
          */
         iterator erase (iterator it) {
-            // <your code>
-            assert(valid());
-            return iterator();
+            if ((it - begin()) < (end() - it)) {
+                iterator b(begin());
+                iterator e(it);
+                while (e != b) {
+                    *e = *(e - 1);
+                    --e;
+                }
+                pop_front();
+                assert(valid());
+                return it + 1;
+            } else {
+                iterator b(it);
+                iterator e(--end());
+                while (b != e) {
+                    *b = *(b + 1);
+                    ++b;
+                }
+                pop_back();
+                assert(valid());
+                return it;
+            }
         }
 
         /**
@@ -730,12 +892,33 @@ class my_deque {
         }
 
         /**
-         * <your documentation>
+         * Insert an element into this my_deque
+         * @param it an iterator to the insertion location
+         * @param v a const reference to be inserted
+         * @return an iterator pointing to the newly inserted element
          */
         iterator insert (iterator it, const_reference v) {
-            // <your code>
-            assert(valid());
-            return iterator();
+            if ((it - begin()) < (end() - it)) {
+                push_front(*begin());
+                iterator b(begin());
+                iterator e(--it);
+                while (b != e) {
+                    *b = *(e + 1);
+                }
+                *b = v;
+                assert(valid());
+                return it;
+            } else {
+                push_back(*--end());
+                iterator b(it);
+                iterator e(--end());
+                while (e != b) {
+                    *e = *(e - 1);
+                }
+                *e = v;
+                assert(valid());
+                return it;
+            }
         }
 
         /**
@@ -760,26 +943,47 @@ class my_deque {
         }
 
         /**
-         * <your documentation>
+         * Put a new element at the back of this my_deque
+         * @param v a const reference to the new element
          */
         void push_back (const_reference v) {
-            // <your code>
-            //resize(size() + 1, v);
+            if (!right_free())
+                rrealloc(1);
+            _a.construct(&(*end()), v);
+            ++_s;
             assert(valid());
         }
 
         /**
-         * <your documentation>
+         * Put a new element at the front of this my_deque
+         * @param v a const reference to the new element
          */
         void push_front (const_reference v) {
-            // <your code>
+            if (!left_free())
+                lrealloc(1);
+            _a.construct(&(*--begin()), v);
+            --_o;
+            ++_s;
             assert(valid());}
 
         /**
-         * <your documentation>
+         * Change the size of this my_deque
+         * @param s the new desired size for my_deque
+         * @param v the value to fill with if the new size if greater
+         * than the current size
          */
         void resize (size_type s, const_reference v = value_type()) {
-            // <your code>
+            if (_s == s)
+                return;
+            else if (s < _s)
+                destroy(_a, begin() + s, end());
+            else if (s <= _s + right_free())
+                uninitialized_fill(_a, end(), end() + (s - _s), v);
+            else {
+                rrealloc(s - _s);
+                uninitialized_fill(_a, end(), end() + (s - _s), v);
+            }
+            _s = s;
             assert(valid());
         }
 
@@ -797,8 +1001,6 @@ class my_deque {
          * @param rhs a my_deque to swap with
          */
         void swap (my_deque& rhs) {
-            // <your code>
-            // TODO: try and use move constructors
             if (this == &rhs)
                 return;
             my_deque d(*this);

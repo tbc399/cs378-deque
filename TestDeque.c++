@@ -89,16 +89,9 @@ TYPED_TEST(Deque_Fixture, equal_equal_3) {
 
 TYPED_TEST(Deque_Fixture, less_than_1) {
     typedef typename TestFixture::deque_t deque_t;
-    deque_t d(3);
-    d[0] = 1;
-    d[1] = 2;
-    d[2] = 3;
-    deque_t e(4);
-    e[0] = 1;
-    e[1] = 2;
-    e[2] = 3;
-    e[4] = 4;
-    ASSERT_TRUE(d < e);
+    const deque_t d(3,1);
+    const deque_t y(3,1);
+    ASSERT_FALSE(d < y);
 }
 
 TYPED_TEST(Deque_Fixture, less_than_2) {
