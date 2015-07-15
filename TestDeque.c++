@@ -36,13 +36,9 @@ template <typename T>
 struct Deque_Fixture : Test {
     typedef T                               deque_t;
     typedef typename deque_t::value_type value_t;};
-/*
-typedef Types<
-               deque<int>,
-            my_deque<int>>
-        deque_types;
-*/
-typedef Types<deque<int>> deque_types;
+
+typedef Types<deque<int>, my_deque<int>> deque_types;
+//typedef Types<deque<int>> deque_types;
 
 TYPED_TEST_CASE(Deque_Fixture, deque_types);
 
@@ -80,6 +76,13 @@ TYPED_TEST(Deque_Fixture, equal_equal_3) {
     typedef typename TestFixture::deque_t deque_t;
     const deque_t d(3,1);
     const deque_t y(2,1);
+    ASSERT_FALSE(d == y);
+}
+
+TYPED_TEST(Deque_Fixture, equal_equal_4) {
+    typedef typename TestFixture::deque_t deque_t;
+    const deque_t d(16,1);
+    const deque_t y(19,2);
     ASSERT_FALSE(d == y);
 }
 
@@ -313,7 +316,7 @@ TYPED_TEST(Deque_Fixture, iterator_plus_plus_int_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(3,1);
     typename deque_t::iterator b = d.begin();
-    typename deque_t::iterator e = d.end();
+    //typename deque_t::iterator e = d.end();
     ASSERT_TRUE(b++ != d.begin() + 1);
     ASSERT_TRUE(b == d.begin() + 1);
 }
@@ -369,7 +372,7 @@ TYPED_TEST(Deque_Fixture, iterator_minus_minus_int_1) {
 TYPED_TEST(Deque_Fixture, iterator_minus_minus_int_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(3,1);
-    typename deque_t::iterator b = d.begin();
+    //typename deque_t::iterator b = d.begin();
     typename deque_t::iterator e = d.end();
     ASSERT_TRUE(e-- != d.end() - 1);
     ASSERT_TRUE(e == d.end() - 1);
@@ -403,7 +406,7 @@ TYPED_TEST(Deque_Fixture, iterator_plus_equal_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(3,1);
     typename deque_t::iterator b = d.begin();
-    typename deque_t::iterator e = d.end();
+    //typename deque_t::iterator e = d.end();
     b += 1;
     ASSERT_TRUE(b != d.begin());
 }
@@ -435,7 +438,7 @@ TYPED_TEST(Deque_Fixture, iterator_minus_equal_1) {
 TYPED_TEST(Deque_Fixture, iterator_minus_equal_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(3,1);
-    typename deque_t::iterator b = d.begin();
+    //typename deque_t::iterator b = d.begin();
     typename deque_t::iterator e = d.end();
     e -= 1;
     ASSERT_TRUE(e != d.end());
@@ -655,7 +658,7 @@ TYPED_TEST(Deque_Fixture, const_iterator_plus_plus_int_2) {
     typedef typename TestFixture::deque_t deque_t;
     const deque_t d(3,1);
     typename deque_t::const_iterator b = d.begin();
-    typename deque_t::const_iterator e = d.end();
+    //typename deque_t::const_iterator e = d.end();
     ASSERT_TRUE(b++ != d.begin() + 1);
     ASSERT_TRUE(b == d.begin() + 1);
 }
@@ -711,7 +714,7 @@ TYPED_TEST(Deque_Fixture, const_iterator_minus_minus_int_1) {
 TYPED_TEST(Deque_Fixture, const_iterator_minus_minus_int_2) {
     typedef typename TestFixture::deque_t deque_t;
     const deque_t d(3,1);
-    typename deque_t::const_iterator b = d.begin();
+    //typename deque_t::const_iterator b = d.begin();
     typename deque_t::const_iterator e = d.end();
     ASSERT_TRUE(e-- != d.end() - 1);
     ASSERT_TRUE(e == d.end() - 1);
@@ -745,7 +748,7 @@ TYPED_TEST(Deque_Fixture, const_iterator_plus_equal_2) {
     typedef typename TestFixture::deque_t deque_t;
     const deque_t d(3,1);
     typename deque_t::const_iterator b = d.begin();
-    typename deque_t::const_iterator e = d.end();
+    //typename deque_t::const_iterator e = d.end();
     b += 1;
     ASSERT_TRUE(b != d.begin());
 }
@@ -777,7 +780,7 @@ TYPED_TEST(Deque_Fixture, const_iterator_minus_equal_1) {
 TYPED_TEST(Deque_Fixture, const_iterator_minus_equal_2) {
     typedef typename TestFixture::deque_t deque_t;
     const deque_t d(3,1);
-    typename deque_t::const_iterator b = d.begin();
+    //typename deque_t::const_iterator b = d.begin();
     typename deque_t::const_iterator e = d.end();
     e -= 1;
     ASSERT_TRUE(e != d.end());
@@ -1382,6 +1385,7 @@ TYPED_TEST(Deque_Fixture, deque_pop_back_2) {
     typedef typename TestFixture::deque_t deque_t;
     deque_t d(100);
     d.insert(d.end(), 1);
+    cout << "INSERT GOOD\n";    
     ASSERT_EQ(101, d.size());
     d.pop_back();
     ASSERT_EQ(100, d.size());

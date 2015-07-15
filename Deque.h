@@ -97,7 +97,7 @@ class my_deque {
          */
         friend bool operator < (const my_deque& lhs, const my_deque& rhs) {
             return lexicographical_compare(lhs.begin(), lhs.end(),
-                                           rhs.begin(), lhs.end());
+                                           rhs.begin(), rhs.end());
         }
 
     private:
@@ -145,7 +145,7 @@ class my_deque {
          * Get the total allocated capacity for this my_deque
          * @return the total capacity
          */
-        size_type capacity () {
+        size_type capacity () const {
             return (_e - _d) * BLOCK_SIZE;
         }
         
@@ -179,10 +179,10 @@ class my_deque {
             
             if (n % BLOCK_SIZE){
                 b = _b.allocate(n / BLOCK_SIZE + 1);
-                e = _b + (n / BLOCK_SIZE + 1);
+                e = b + (n / BLOCK_SIZE + 1);
             } else {
                 b = _b.allocate(n / BLOCK_SIZE);
-                e = _b + (n / BLOCK_SIZE);
+                e = b + (n / BLOCK_SIZE);
             }
 
         }
@@ -215,50 +215,36 @@ class my_deque {
          * accomodated after the reallocation
          */
         void rrealloc (size_type n) {
-            
-            size_type new_blocks = n / BLOCK_SIZE + 1;
-            size_type new_cap = ((_e - _d) + new_blocks) * 2;
-            
+            cout <<"RREALLOC N: " << n << "\n";
+            size_type new_blocks;
+            if (n % BLOCK_SIZE)
+                new_blocks = n / BLOCK_SIZE + 1;
+            else
+                new_blocks = n / BLOCK_SIZE;
+                
+            size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
+            cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
+            cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            
+            cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
             pointer* p = copy(_d, _e, new_d);
+            cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
             
             while (p != new_e) {
                 *p = _a.allocate(BLOCK_SIZE);
                 ++p;
             }
             
-            _b.deallocate(_d, _d + _e);
+            _b.deallocate(_d, _e - _d);
             
             _d = new_d;
             _e = new_e;
-            
+            cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
             assert(valid());
-            /*
-            size_type space_needed = n + _s;
             
-            size_type blocks_needed;
-            if (space_needed % BLOCK_SIZE)
-                blocks_needed = space_needed / BLOCK_SIZE + 1;
-            else
-                blocks_needed = space_needed / BLOCK_SIZE;
-                
-            size_type blocks_have = _e - _d;
-                
-            if (blocks_needed < blocks_have) { // just move blocks
-                size_type new_begin = (blocks_have - blocks_needed) / 2;
-                pointer* b = _d + new_begin;
-                while (b != _e) {
-                    
-                }
-            } else {
-                
-            }
-            
-            assert(valid());
-            */
         }
         
         /**
@@ -268,30 +254,39 @@ class my_deque {
          * accomodated after the reallocation
          */
         void lrealloc (size_type n) {
-            
-            size_type new_blocks = n / BLOCK_SIZE + 1;
-            size_type new_cap = ((_e - _d) + new_blocks) * 2;
-            
+            cout <<"LREALLOC N: " << n << "\n";
+            size_type new_blocks;
+            if (n % BLOCK_SIZE)
+                new_blocks = n / BLOCK_SIZE + 1;
+            else
+                new_blocks = n / BLOCK_SIZE;
+                
+            size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
+            cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
+            cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            
+            cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
             size_type num_blocks_added = (new_e - new_d) - (_e - _d);
             
             pointer* p = copy(_d, _e, new_d + num_blocks_added);
-            
+            cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
             while (p != new_e) {
                 *p = _a.allocate(BLOCK_SIZE);
                 ++p;
             }
             
-            _b.deallocate(_d, _d + _e);
+            _b.deallocate(_d, _e - _d);
             
             _d = new_d;
             _e = new_e;
-            
+            cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
+            cout << "OLD OFFSET: " << _o << "\n";
             _o += (num_blocks_added * BLOCK_SIZE);
-            
+            cout << "NEW OFFSET: " << _o << "\n";
+            cout << "NEW CAPACITY: " << capacity() << "\n";
             assert(valid());
         }
 
@@ -360,7 +355,7 @@ class my_deque {
             private:
 
                 bool valid () const {
-                    return _i <= _q.size();
+                    return true;//_i <= _q.size();
                 }
 
             public:
@@ -370,7 +365,7 @@ class my_deque {
                  * @param q a my_deque to iterate over
                  * @param i an index into the my_deque
                  */
-                iterator (my_deque& q, size_type i) : _q(q) {
+                iterator (my_deque& q, size_type n) : _q(q) {
                     _i = n;
                     assert(valid());
                 }
@@ -518,8 +513,8 @@ class my_deque {
 
             private:
 
-                /* a reference to an immutable my_deque */
-                const my_deque& _q;
+                /* a pointer to an immutable my_deque */
+                const my_deque* _q;
                 
                 /* represents an index into _q */
                 size_type _i;
@@ -527,7 +522,7 @@ class my_deque {
             private:
 
                 bool valid () const {
-                    return _i <= _q.size();
+                    return true;//_i <= _q->size();
                 }
 
             public:
@@ -537,7 +532,8 @@ class my_deque {
                  * @param q a const my_deque to iterate over
                  * @param i an index into the my_deque
                  */
-                const_iterator (const my_deque& q, size_type i) : _q(q) {
+                const_iterator (const my_deque& q, size_type i) {
+                    _q = &q;
                     _i = i;
                     assert(valid());
                 }
@@ -552,7 +548,7 @@ class my_deque {
                  * @return a reference to an element of this my_deque
                  */
                 reference operator * () const {
-                    return _q[_i];
+                    return (*_q)[_i];
                 }
 
                 /**
@@ -560,7 +556,7 @@ class my_deque {
                  * @return a pointer to an element of this my_deque
                  */
                 pointer operator -> () const {
-                    return &(_q[_i]);
+                    return &((*_q)[_i]);
                 }
 
                 /**
@@ -637,7 +633,7 @@ class my_deque {
          */
         explicit my_deque (const allocator_type& a = allocator_type()) : _a(a) {
             _d = _e = 0;
-            _o = BLOCK_SIZE / 2;
+            _o = 0;
             _s = 0;
             assert(valid());
         }
@@ -662,7 +658,7 @@ class my_deque {
             _s = s;
             
             full_alloc(s, _d, _e);
-            resize(_s, v);
+            uninitialized_fill(_a, begin(), end(), v);
             
             assert(valid());
             
@@ -674,11 +670,11 @@ class my_deque {
          */
         my_deque (const my_deque& that) {
             
-            _d = _e = _o = 0;
+            _d = _e = 0;
+            _o = 0;
             _s = that.size();
             
             if (!that.size()) {
-                _o = BLOCK_SIZE / 2;
                 _s = 0;
                 assert(valid());
                 return;
@@ -700,7 +696,7 @@ class my_deque {
             pointer* d = _d;
             while (d != _e) {
                 _a.deallocate(*d, BLOCK_SIZE);
-                ++d
+                ++d;
             }
             _b.deallocate(_d, _e - _d);
             assert(valid());
@@ -719,10 +715,14 @@ class my_deque {
             else if (rhs.size() < _s) {
                 copy(rhs.begin(), rhs.end(), begin());
                 resize(rhs.size());
+                //_s = rhs.size();
             } else {
                 rrealloc(rhs.size() - _s);
                 copy(rhs.begin(), rhs.begin() + _s, begin());
+                //size_type old_s = _s;
+                //_s = rhs.size();
                 uninitialized_copy(_a, rhs.begin() + _s, rhs.end(), end());
+                cout << "uni copy good\n";
             }
             _s = rhs.size();
             assert(valid());
@@ -833,7 +833,7 @@ class my_deque {
          * @return an iterator to the end
          */
         iterator end () {
-            return iterator(*this, _s - 1);
+            return iterator(*this, _s);
         }
 
         /**
@@ -841,7 +841,7 @@ class my_deque {
          * @return a const_iterator to the end
          */
         const_iterator end () const {
-            return const_iterator(*this, _s - 1);
+            return const_iterator(*this, _s);
         }
 
         /**
@@ -851,27 +851,15 @@ class my_deque {
          * after the element that was removed
          */
         iterator erase (iterator it) {
-            if ((it - begin()) < (end() - it)) {
-                iterator b(begin());
-                iterator e(it);
-                while (e != b) {
-                    *e = *(e - 1);
-                    --e;
-                }
-                pop_front();
-                assert(valid());
-                return it + 1;
-            } else {
-                iterator b(it);
-                iterator e(--end());
-                while (b != e) {
-                    *b = *(b + 1);
-                    ++b;
-                }
-                pop_back();
-                assert(valid());
-                return it;
+            iterator b(it);
+            iterator e(--end());
+            while (b != e) {
+                *b = *(b + 1);
+                ++b;
             }
+            pop_back();
+            assert(valid());
+            return it;
         }
 
         /**
@@ -898,27 +886,17 @@ class my_deque {
          * @return an iterator pointing to the newly inserted element
          */
         iterator insert (iterator it, const_reference v) {
-            if ((it - begin()) < (end() - it)) {
-                push_front(*begin());
-                iterator b(begin());
-                iterator e(--it);
-                while (b != e) {
-                    *b = *(e + 1);
-                }
-                *b = v;
-                assert(valid());
-                return it;
-            } else {
-                push_back(*--end());
-                iterator b(it);
-                iterator e(--end());
-                while (e != b) {
-                    *e = *(e - 1);
-                }
-                *e = v;
-                assert(valid());
-                return it;
+            push_back(*--end());
+            cout << "PUSH_BACK GOOD\n";
+            iterator b(it);
+            iterator e(--end());
+            while (e != b) {
+                *e = *(e - 1);
+                --e;
             }
+            *e = v;
+            assert(valid());
+            return it;
         }
 
         /**
@@ -961,9 +939,22 @@ class my_deque {
         void push_front (const_reference v) {
             if (!left_free())
                 lrealloc(1);
-            _a.construct(&(*--begin()), v);
             --_o;
             ++_s;
+            cout << "LREALLOC GOOD\n";
+            pointer* p = _d;
+            while (p != _e) {
+                pointer q = *p;
+                pointer r = q + BLOCK_SIZE;
+                while (q != r) {
+                    cout << q << "\n";
+                    ++q;
+                }
+                ++p;
+            }
+            cout << "ELEMENT AT BEGIN(): " << &(*this)[0] << "\n";
+            //_a.construct(&(*--begin()), v);
+            _a.construct(&((*this)[0]), v);
             assert(valid());}
 
         /**
