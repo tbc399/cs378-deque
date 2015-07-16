@@ -222,7 +222,10 @@ class my_deque {
             else
                 new_blocks = n / BLOCK_SIZE;
                 
-            size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            //size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            size_type s1 = new_blocks * BLOCK_SIZE;
+            size_type s2 = (capacity() - _o) * 2;
+            size_type new_cap = max(s1, s2);
             //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
             //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
             //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
@@ -261,7 +264,10 @@ class my_deque {
             else
                 new_blocks = n / BLOCK_SIZE;
                 
-            size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            //size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
+            size_type s1 = new_blocks * BLOCK_SIZE;
+            size_type s2 = (_o + _s) * 2;
+            size_type new_cap = max(s1, s2);
             //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
             //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
             //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
@@ -371,7 +377,7 @@ class my_deque {
                 /**
                  * Construct an iterator for a my_deque
                  * @param q a my_deque to iterate over
-                 * @param i an index into the my_deque
+                 * @param n an index into the my_deque
                  */
                 iterator (my_deque& q, size_type n) : _q(q) {
                     _i = n;
@@ -543,11 +549,11 @@ class my_deque {
                 /**
                  * Construct a const_terator for a const my_deque
                  * @param q a const my_deque to iterate over
-                 * @param i an index into the my_deque
+                 * @param n an index into the my_deque
                  */
-                const_iterator (const my_deque& q, size_type i) {
+                const_iterator (const my_deque& q, size_type n) {
                     _q = &q;
-                    _i = i;
+                    _i = n;
                     assert(valid());
                 }
 
