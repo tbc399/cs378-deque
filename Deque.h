@@ -8,7 +8,7 @@
 #define Deque_h
 
 /* size of an individual block in number of elements */
-#define BLOCK_SIZE 5
+#define BLOCK_SIZE 25
 
 #include <algorithm> // copy, equal, lexicographical_compare, max, swap
 #include <cassert>   // assert
@@ -358,7 +358,7 @@ class my_deque {
             private:
 
                 bool valid () const {
-                    return true;//_i <= _q.size();
+                    return _i <= _q.size();
                 }
 
             public:
@@ -525,7 +525,7 @@ class my_deque {
             private:
 
                 bool valid () const {
-                    return true;//_i <= _q->size();
+                    return _i <= _q->size();
                 }
 
             public:
@@ -718,15 +718,16 @@ class my_deque {
             else if (rhs.size() < _s) {
                 copy(rhs.begin(), rhs.end(), begin());
                 resize(rhs.size());
-                //_s = rhs.size();
+                _s = rhs.size();
             } else {
                 rrealloc(rhs.size() - _s);
                 copy(rhs.begin(), rhs.begin() + _s, begin());
-                //size_type old_s = _s;
-                //_s = rhs.size();
-                uninitialized_copy(_a, rhs.begin() + _s, rhs.end(), end());
+                size_type old_s = _s;
+                iterator start_it = end();
+                _s = rhs.size();
+                uninitialized_copy(_a, rhs.begin() + old_s, rhs.end(), start_it);
             }
-            _s = rhs.size();
+            //_s = rhs.size();
             assert(valid());
             return *this;
         }
@@ -862,6 +863,15 @@ class my_deque {
             pop_back();
             assert(valid());
             return it;
+            
+            /*
+            
+            if () {
+            	continue;
+            } else {
+            	continue;
+            }
+            */
         }
 
         /**
@@ -943,22 +953,7 @@ class my_deque {
                 lrealloc(1);
             --_o;
             ++_s;
-            //cout << "LREALLOC GOOD\n";
-            /*pointer* p = _d;
-            while (p != _e) {
-                pointer q = *p;
-                pointer r = q + BLOCK_SIZE;
-                cout << "p = " << p << "\n";
-                while (q != r) {
-                    cout << q << "\n";
-                    ++q;
-                }
-                ++p;
-            }
-            (*this)[-5] = 2;
-            cout << "ELEMENT AT BEGIN(): " << &(*this)[-5] << "\n";*/
             _a.construct(&(*begin()), v);
-            //_a.construct(&((*this)[0]), v);
             assert(valid());
      	}
 
@@ -971,15 +966,22 @@ class my_deque {
         void resize (size_type s, const_reference v = value_type()) {
             if (_s == s)
                 return;
-            else if (s < _s)
+            else if (s < _s) {
                 destroy(_a, begin() + s, end());
-            else if (s <= _s + right_free())
-                uninitialized_fill(_a, end(), end() + (s - _s), v);
-            else {
-                rrealloc(s - _s);
-                uninitialized_fill(_a, end(), end() + (s - _s), v);
+                _s = s;
+            } else if (s <= _s + right_free()) {
+            	iterator start_it = end();
+            	size_type old_s = _s;
+            	_s = s;
+                uninitialized_fill(_a, start_it, start_it + (s - old_s), v);
+            } else {
+            	iterator start_it = end();
+            	size_type old_s = _s;
+            	_s = s;
+                rrealloc(s - old_s);
+                uninitialized_fill(_a, start_it, start_it + (s - old_s), v);
             }
-            _s = s;
+            //_s = s;
             assert(valid());
         }
 
