@@ -356,7 +356,12 @@ class my_deque {
                 size_type _i;
 
             private:
-
+            
+				/**
+				 * Check to make sure an iterator is valid
+				 * @return true if the iterator index _i is
+				 * less than or equal to the my_deque size
+				 */
                 bool valid () const {
                     return _i <= _q.size();
                 }
@@ -523,7 +528,12 @@ class my_deque {
                 size_type _i;
 
             private:
-
+            
+				/**
+				 * Check to make sure an iterator is valid
+				 * @return true if the iterator index _i is
+				 * less than or equal to the my_deque size
+				 */
                 bool valid () const {
                     return _i <= _q->size();
                 }
