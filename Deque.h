@@ -215,26 +215,22 @@ class my_deque {
          * accomodated after the reallocation
          */
         void rrealloc (size_type n) {
-            //cout <<"RREALLOC N: " << n << "\n";
+        
             size_type new_blocks;
             if (n % BLOCK_SIZE)
                 new_blocks = n / BLOCK_SIZE + 1;
             else
                 new_blocks = n / BLOCK_SIZE;
                 
-            //size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
             size_type s1 = new_blocks * BLOCK_SIZE;
             size_type s2 = (capacity() - _o) * 2;
             size_type new_cap = max(s1, s2);
-            //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
-            //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
-            //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
+            
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            //cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
+            
             pointer* p = copy(_d, _e, new_d);
-            //cout << "COPIED OLD CONTENT: " << (p != new_d) << "\n";
             
             while (p != new_e) {
                 *p = _a.allocate(BLOCK_SIZE);
@@ -245,7 +241,7 @@ class my_deque {
             
             _d = new_d;
             _e = new_e;
-            //cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
+            
             assert(valid());
             
         }
@@ -257,33 +253,28 @@ class my_deque {
          * accomodated after the reallocation
          */
         void lrealloc (size_type n) {
-            //cout <<"LREALLOC N: " << n << "\n";
+        
             size_type new_blocks;
             if (n % BLOCK_SIZE)
                 new_blocks = n / BLOCK_SIZE + 1;
             else
                 new_blocks = n / BLOCK_SIZE;
                 
-            //size_type new_cap = (((_e - _d) + new_blocks) * 2) * BLOCK_SIZE;
             size_type s1 = new_blocks * BLOCK_SIZE;
             size_type s2 = (_o + _s) * 2;
             size_type new_cap = max(s1, s2);
-            //cout << "CURRENT NUM BLOCKS: " << (_e - _d) << " BLOCKS\n";
-            //cout << "NEED " << (((_e - _d) + new_blocks) * 2) << " NEW BLOCKS\n";
-            //cout << "ASKING FOR " << new_cap << " ELEMENTS WORTH OF STORAGE\n";
+            
             pointer* new_d;
             pointer* new_e;
             half_alloc(new_cap, new_d, new_e);
-            //cout << "HALF_ALLOC: " << (new_e - new_d) << " BLOCKS\n";
+            
             size_type num_blocks_added = (new_e - new_d) - (_e - _d);
-            //cout << "ADDING " << num_blocks_added << " NEW BLOCKS\n";
             copy(_d, _e, new_d + num_blocks_added);
-            //cout << "COPIED OLD CONTENT: " << (p == new_e) << "\n";
+            
             pointer* b = new_d;
             pointer* e = new_d + num_blocks_added;
             while (b != e) {
                 *b = _a.allocate(BLOCK_SIZE);
-                //cout << "ALLOCATING BLOCK\n";
                 ++b;
             }
             
@@ -291,12 +282,11 @@ class my_deque {
             
             _d = new_d;
             _e = new_e;
-            //cout << "VERIFY NUBER OF NEW BLOCKS: " << (_e - _d) << "\n";
-            //cout << "OLD OFFSET: " << _o << "\n";
+            
             _o += (num_blocks_added * BLOCK_SIZE);
-            //cout << "NEW OFFSET: " << _o << "\n";
-            //cout << "NEW CAPACITY: " << capacity() << "\n";
+            
             assert(valid());
+            
         }
 
     public:
@@ -743,7 +733,7 @@ class my_deque {
                 _s = rhs.size();
                 uninitialized_copy(_a, rhs.begin() + old_s, rhs.end(), start_it);
             }
-            //_s = rhs.size();
+            
             assert(valid());
             return *this;
         }
@@ -879,15 +869,6 @@ class my_deque {
             pop_back();
             assert(valid());
             return it;
-            
-            /*
-            
-            if () {
-            	continue;
-            } else {
-            	continue;
-            }
-            */
         }
 
         /**
@@ -915,7 +896,6 @@ class my_deque {
          */
         iterator insert (iterator it, const_reference v) {
             push_back(*--end());
-            //cout << "PUSH_BACK GOOD\n";
             iterator b(it);
             iterator e(--end());
             while (e != b) {
@@ -997,7 +977,6 @@ class my_deque {
                 rrealloc(s - old_s);
                 uninitialized_fill(_a, start_it, start_it + (s - old_s), v);
             }
-            //_s = s;
             assert(valid());
         }
 
