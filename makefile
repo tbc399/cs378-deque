@@ -34,8 +34,6 @@ clean:
 	rm -f *.gcda
 	rm -f *.gcno
 	rm -f *.gcov
-	rm -f RunDeque
-	rm -f RunDeque.out
 	rm -f TestDeque
 	rm -f TestDeque.out
 
@@ -50,7 +48,7 @@ simple-test: TestDeque
 deque-tests:
 	git clone https://github.com/cs378-summer-2015/deque-tests.git
 
-html: Doxyfile Deque.h RunDeque.c++ TestDeque.c++
+html: Doxyfile Deque.h TestDeque.c++
 	doxygen Doxyfile
 
 Deque.log:
