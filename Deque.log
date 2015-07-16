@@ -1,0 +1,119 @@
+commit fe0ce6aa2207a87ee506e72f56d3c7f1606e34fd
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 21:34:51 2015 -0500
+
+    removed everything that was commented out and no longer needed
+
+commit c661ae22cd0efe265d50e3e8012e190eb4d2cdbf
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 21:28:21 2015 -0500
+
+    close #17: added documentation and cut down on the amount of space rrealloc and lrealloc will allocate
+
+commit 339012da3201f1b062f2ef8e02976461537ef4e5
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 21:04:56 2015 -0500
+
+    documented the iterator valid() methods
+
+commit 3b8b9fc78a226160e556a620d227736dc135d040
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 20:49:31 2015 -0500
+
+    needed to remove some stuff about RunDeque in order to work properly on travis CI
+
+commit 290747817e3cb5201f3615a98a065aa1c0b2edbf
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 20:40:45 2015 -0500
+
+    added the TestDeque.out file
+
+commit 6194766efaaaa0c938407c60065e2dcb4b7a73dc
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 20:37:00 2015 -0500
+
+    made another syntax change to travis file
+
+commit cfbebfd381efdbbd80e3c76e73d9adea3cb0da0d
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 20:35:32 2015 -0500
+
+    made a syntax change to travis file
+
+commit 69de2b993c93eff60b707eddf26ea8ce18757018
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 20:31:09 2015 -0500
+
+    added more tests and fixed any issues that were found
+
+commit de5833d707ce77e7e8b7c18b73a29eacac03b382
+Author: Travis Cammack <tbc399@cs.utexas.edu>
+Date:   Wed Jul 15 18:20:14 2015 -0500
+
+    first implementation that passes all the simple tests
+
+commit 6070925b052ddf730177f9b267aad7a4630b0425
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Wed Jul 15 14:14:08 2015 -0500
+
+    committing to pull on CS machines
+
+commit faf12d610821106eb02dc332ebaae298a63c53c1
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Tue Jul 14 21:13:57 2015 -0500
+
+    all of my_deque is implemented and ready to test
+
+commit 4caef8087df1d527e1090f3eb2818299cecf0a79
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Mon Jul 13 20:45:11 2015 -0500
+
+    implemented iterator and const_iterator
+
+commit 1dfb9a23513a27203076b39b2f23fb4c9f2526b6
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Sun Jul 12 22:29:41 2015 -0500
+
+    removed new from constructors and used the rebind for allocator instead
+
+commit db572bd3b1daf6f1919fbd724870a9249ebde321
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Sat Jul 11 22:59:02 2015 -0500
+
+    implemented the first two constructors for my_deque and the == and < operators
+
+commit 60b4462a14706f82588ebb95d3b37f873f752f74
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Fri Jul 10 20:57:20 2015 -0500
+
+    added the trivial parts of some methods from what we learned in class with vector
+
+commit 17ddffbb48752431b21f50cdb845899ceea56af1
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Fri Jul 10 19:38:12 2015 -0500
+
+    and after 8 hourse we finally have a full working set of unit tests verified against std::deque<int>
+
+commit 97ce506ef5da5b31f144399c6a8d9f74a31d5815
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Thu Jul 9 21:34:01 2015 -0500
+
+    slowly adding tests to TestDeque
+
+commit 41d98ef498d5d88753dfd9fea370a9d3188b625a
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Thu Jul 9 14:56:07 2015 -0500
+
+    setup the skeleton for the unit tests
+
+commit 7d4de6a7a2afe15ef1ffdfe52311e9c844aae687
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Thu Jul 9 14:55:41 2015 -0500
+
+    added the travis CI file and makefile
+
+commit 3439620998ef306ca8ee45e8dd02a72cc97a2842
+Author: Travis Cammack <cammack@utexas.edu>
+Date:   Thu Jul 9 12:26:05 2015 -0500
+
+    initial commit with Deque.h and TestDeque.c++
